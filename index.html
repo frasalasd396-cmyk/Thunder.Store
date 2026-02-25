@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الرعد ستور | Thunder Store</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <style>
+        :root { --thunder: #fbbf24; --bg: #020617; --card: #1e293b; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .login-box { background: var(--card); padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; border: 1px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .header h1 { color: var(--thunder); margin: 10px 0; font-weight: 900; letter-spacing: 2px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 1rem; }
+        .btn-main { width: 100%; padding: 13px; background: var(--thunder); color: #000; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; transition: 0.3s; }
+        .btn-main:hover { background: #f59e0b; }
+        .social-btn { width: 100%; padding: 10px; margin: 8px 0; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; color: white; font-weight: bold; }
+        .google-btn { background: #db4437; }
+        .fb-btn { background: #1877f2; }
+        #recaptcha-container { margin: 10px 0; }
+    </style>
+</head>
+<body>
+
+<div class="login-box">
+    <div class="header">
+        <div style="font-size: 3.5rem; color: var(--thunder);">⚡</div>
+        <h1>THUNDER STORE</h1>
+        <p style="color: #94a3b8;">سجل دخولك لبدء الشحن الفوري</p>
+    </div>
+
+    <input type="tel" id="phone" placeholder="+966xxxxxxxxx">
+    <div id="recaptcha-container"></div>
+    <button class="btn-main" onclick="phoneLogin()">إرسال رمز التحقق SMS</button>
+
+    <div style="margin: 20px 0; font-size: 0.9rem; color: #64748b;">أو عبر التواصل الاجتماعي</div>
+
+    <button class="social-btn google-btn" onclick="googleLogin()">
+        دخول سريع عبر Google
+    </button>
+    <button class="social-btn fb-btn" onclick="facebookLogin()">
+        دخول سريع عبر Facebook
+    </button>
+</div>
+
+<script>
+  // إعدادات Firebase الخاصة بمشروعك raad-store-8e03e
+  const firebaseConfig = {
+    apiKey: "ضع_مفتاح_API_الخاص_بك_هنا", // ستجده في Project Settings
+    authDomain: "raad-store-8e03e.firebaseapp.com",
+    projectId: "raad-store-8e03e",
+    storageBucket: "raad-store-8e03e.appspot.com",
+    messagingSenderId: "ضع_معرف_الارسال_هنا",
+    appId: "ضع_معرف_التطبيق_هنا",
+    databaseURL: "https://raad-store-8e03e-default-rtdb.firebaseio.com"
+  };
+
+  // تهيئة النظام
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  // 1. الدخول بجوجل
+  function googleLogin() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+        .then(res => alert("مرحباً بك يا " + res.user.displayName))
+        .catch(err => alert("خطأ: " + err.message));
+  }
+
+  // 2. الدخول بفيسبوك
+  function facebookLogin() {
+    const provider = new firebase.auth.FacebookAuthProvider();
+    auth.signInWithPopup(provider)
+        .then(() => alert("تم ربط حساب فيسبوك بنجاح!"))
+        .catch(err => alert("خطأ في الربط"));
+  }
+
+  // 3. الدخول برقم الجوال (SMS)
+  function phoneLogin() {
+    const number = document.getElementById('phone').value;
+    const recaptcha = new firebase.auth.RecaptchaVerifier('recaptcha-container');
+    auth.signInWithPhoneNumber(number, recaptcha)
+        .then(confirmation => {
+            const code = prompt("أدخل الكود المكون من 6 أرقام:");
+            confirmation.confirm(code).then(() => alert("تم تفعيل حسابك بنجاح!"));
+        })
+        .catch(err => alert("تأكد من الرقم والكود"));
+  }
+</script>
+
+</body>
+</html>
